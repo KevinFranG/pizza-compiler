@@ -36,7 +36,6 @@ public class Main {
             drawer.draw();
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
-            throw e;
         }
     }
 }

@@ -42,15 +42,15 @@ te entrega las pizzas que preparaste en el formato de imagén que tú desees.
 Clona el repositorio:
 
 ```bash
-git clone https://github.com/tuusuario/pizzalang.git
-cd pizzalang
+git clone https://github.com/KevinFranG/pizza-compiler.git
+cd pizza-compiler
 ```
 
 ### Requerimientos
 
 Vas a necesitar tener instalado:
 
-- Java 17 o superior
+- Java 17
 - Maven
 
 ---
