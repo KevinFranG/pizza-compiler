@@ -4,6 +4,7 @@ import compiler.lexical.LexicalAnalyzer;
 import compiler.lexical.Token;
 import compiler.parser.ASTNode;
 import compiler.parser.Parser;
+import compiler.semantic.InvalidPathException;
 import compiler.semantic.SemanticAnalyzer;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,7 +23,7 @@ public class PizzaCodeSource {
     private final Path path;
     private final String name;
     private final String root;
-    private final FileReader file;
+    private final BufferedReader buffer;
 
     private static final Path programResourceFolder = Paths.get("ingredients");
     private static final Path relativeResourceFolder = Paths.get("resources");
@@ -30,16 +32,28 @@ public class PizzaCodeSource {
 
     public PizzaCodeSource(@NotNull File file, boolean showProcess) {
         try {
-            this.file = new FileReader(file);
+            this.buffer = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(
-                    "Pizza file (.pf) root='%s' could not be found"
-                            .formatted(file.getPath()));
+                "Pizza buffer (.pf) root='%s' could not be found"
+                    .formatted(file.getPath()));
         }
 
-        this.path = Paths.get(file.getPath());
+        this.path = Paths.get(file.getPath()).toAbsolutePath();
+        System.out.println(path);
         this.name = path.getFileName().toString();
         this.root = path.getParent().toString();
+        this.showProcess = showProcess;
+
+        checkExtension();
+    }
+
+    public PizzaCodeSource(@NotNull BufferedReader buffer, @NotNull Path path, boolean showProcess) {
+        this.buffer = buffer;
+
+        this.path = path.toAbsolutePath();
+        this.name = path.getFileName().toString();
+        this.root = null;
         this.showProcess = showProcess;
 
         checkExtension();
@@ -53,16 +67,16 @@ public class PizzaCodeSource {
                 writer.write(code);
             }
 
-            this.file = new FileReader(temporaryFile);
+            this.buffer = new BufferedReader(new FileReader(temporaryFile));
 
             this.path = Paths.get(temporaryFile.getPath());
             this.name = path.getFileName().toString();
-            this.root = path.getParent().toString();
+            this.root = (path.getParent() == null ? Paths.get(".") : path.getParent()).toString();
             this.showProcess = false;
 
             checkExtension();
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't create temporary file", e);
+            throw new RuntimeException("Couldn't create temporary buffer", e);
         }
     }
 
@@ -73,6 +87,7 @@ public class PizzaCodeSource {
      * Then does the semantic analysis (named parsing too) when doing this, get the sourceCodePath's
      * AST node (abstract syntax tree) containing the correct struct of this sourceCodePath.
      * Finally, does the semantic analysis, checking the correct use of each variable or instruction.
+     *
      * @return a list with the instructions to be executed.
      */
     public SemanticAnalyzer.Intermediate compile() {
@@ -107,7 +122,7 @@ public class PizzaCodeSource {
             return intermediate;
         } catch (IOException e) {
             throw new RuntimeException("File %s could not be access or read"
-                    .formatted(file));
+                .formatted(buffer));
         }
     }
 
@@ -136,11 +151,17 @@ public class PizzaCodeSource {
      *
      * @return A BufferedImage that contains the canvas read if all went good.
      */
-    public @NotNull File getResource(@NotNull Path path) throws URISyntaxException {
-        URL url = PizzaCodeSource.class.getClassLoader()
-                .getResource(programResourceFolder.resolve(path).toString());
+    public @NotNull InputStream getResource(@NotNull Path path) throws FileNotFoundException {
+        InputStream input = PizzaCodeSource.class.getClassLoader()
+            .getResourceAsStream(path.toString().replace('\\', '/'));
 
-        return url == null ? new File(generateURI(relativeResourceFolder.resolve(path))) : new File(url.toURI());
+        if (input != null)
+            return input;
+
+        File file = path.toFile();
+        if (!file.exists())
+            throw new FileNotFoundException("No se encontró el recurso " + path);
+        return new FileInputStream(file);
     }
 
     /**
@@ -150,11 +171,18 @@ public class PizzaCodeSource {
      *
      * @return A BufferedImage that contains the canvas read if all went good.
      */
-    public @NotNull File getFile(@NotNull Path path) throws URISyntaxException {
-        URL url = PizzaCodeSource.class.getClassLoader()
-                .getResource(path.toString());
+    public @NotNull BufferedReader getBuffer(@NotNull Path path) throws FileNotFoundException {
+        InputStream is = PizzaCodeSource.class.getClassLoader()
+            .getResourceAsStream(path.toString());
 
-        return url == null ? new File(generateURI(path)) : new File(url.toURI());
+        if (is != null)
+            return new BufferedReader(new InputStreamReader(is));
+
+        File file = path.toFile();
+        if (file.exists())
+            return new BufferedReader(new FileReader(file));
+
+        throw new FileNotFoundException("No se encontró el archivo " + path);
     }
 
     private void checkExtension() {
@@ -162,8 +190,8 @@ public class PizzaCodeSource {
 
         if (!extension.equalsIgnoreCase("pf"))
             throw new IllegalArgumentException(
-                    "The file's extension '%s' is not available. Use instead 'pf' extension"
-                            .formatted(extension));
+                "The buffer's extension '%s' is not available. Use instead 'pf' extension"
+                    .formatted(extension));
     }
 
     @Override

@@ -72,10 +72,10 @@ public class Ingredient extends Assignment {
             PizzaCodeSource program = (PizzaCodeSource) pathNode.root().getValue();
             Path path = Paths.get(pathNode.getValue().toString());
 
-            try (FileInputStream input = new FileInputStream(program.getResource(path))) {
+            try (var input = program.getResource(path)) {
                 return ImageIO.read(input);
             }
-        } catch (FileNotFoundException | URISyntaxException e) {
+        } catch (FileNotFoundException e) {
             throw InvalidPathException.invalid(pathNode);
         } catch (IOException e) {
             throw InvalidPathException.notOpen(pathNode);

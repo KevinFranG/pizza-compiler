@@ -40,7 +40,7 @@ public class LexicalAnalyzer {
      * @throws IOException if the file associated with the source could not be open or read.
      */
     public LexicalAnalyzer(@NotNull PizzaCodeSource source) throws IOException {
-        try (BufferedReader reader = new BufferedReader(source.getFile())) {
+        try (BufferedReader reader = source.getBuffer()) {
             this.codeLines = reader.lines()
                     .toList();
             this.currentPosition = new CodePosition(source.getPath());

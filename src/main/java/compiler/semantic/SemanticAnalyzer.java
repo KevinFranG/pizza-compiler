@@ -12,6 +12,7 @@ import language.types.Specialty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,9 +38,9 @@ public class SemanticAnalyzer {
     }
 
     public Intermediate analyze() {
-       analyzeProgram(programNode);
+        analyzeProgram(programNode);
 
-       return new Intermediate(programNode, instructions, symbolTable);
+        return new Intermediate(programNode, instructions, symbolTable);
     }
 
     private void analyzeProgram(@NotNull ASTNode node) {
@@ -61,13 +62,13 @@ public class SemanticAnalyzer {
             throw InvalidPathException.recursive(includeNode.left());
 
         try {
-            PizzaCodeSource includeProgram = new PizzaCodeSource(sourceProgram.getFile(path), false);
+            PizzaCodeSource includeProgram = new PizzaCodeSource(sourceProgram.getBuffer(path), path, false);
 
             Intermediate include = includeProgram.compile();
             //add each instruction and symbol
             instructions.addAll(include.instructions);
             symbolTable.addAll(include.symbols);
-        } catch (URISyntaxException e) {
+        } catch (FileNotFoundException e) {
             throw InvalidPathException.invalid(includeNode.left());
         }
     }
@@ -95,21 +96,21 @@ public class SemanticAnalyzer {
         ASTNode literalNode = specialtyNode.left();
 
         symbolTable.add(new Specialty(
-                literalNode,
-                literalNode.children().stream()
-                        .peek(n -> {
-                            if (symbolTable.isDeclared(n.getValue())) return;
-                            throw new UndefinedVarException(n);
-                        })
-                        .map(n -> {
-                            Assignment var = symbolTable.get(n.getValue());
-                            if (!(var instanceof Ingredient ingredient))
-                                throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
+            literalNode,
+            literalNode.children().stream()
+                .peek(n -> {
+                    if (symbolTable.isDeclared(n.getValue())) return;
+                    throw new UndefinedVarException(n);
+                })
+                .map(n -> {
+                    Assignment var = symbolTable.get(n.getValue());
+                    if (!(var instanceof Ingredient ingredient))
+                        throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
 
-                            int quantity = doOperation(n.left());
-                            return Map.entry(ingredient, quantity);
-                        })
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k, v) -> k, LinkedHashMap::new))));
+                    int quantity = doOperation(n.left());
+                    return Map.entry(ingredient, quantity);
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k, v) -> k, LinkedHashMap::new))));
     }
 
     private void addMake(@NotNull ASTNode makeNode) {
@@ -136,47 +137,47 @@ public class SemanticAnalyzer {
 
     private LinkedHashSet<Specialty> validSpecialties(@NotNull ASTNode ofNode) {
         return ofNode.children().stream()
-                .map(n -> {
-                    if (!symbolTable.isDeclared(n))
-                        throw new UndefinedVarException(n);
+            .map(n -> {
+                if (!symbolTable.isDeclared(n))
+                    throw new UndefinedVarException(n);
 
-                    Assignment assignment = symbolTable.get(n);
+                Assignment assignment = symbolTable.get(n);
 
-                    if (assignment instanceof Specialty specialty)
-                        return specialty;
+                if (assignment instanceof Specialty specialty)
+                    return specialty;
 
-                    throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
+            })
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private LinkedHashMap<Ingredient, Integer> validIngredients(@NotNull ASTNode addNode) {
         return addNode.children().stream()
-                .map(n -> {
-                    if (!symbolTable.isDeclared(n))
-                        throw new UndefinedVarException(n);
+            .map(n -> {
+                if (!symbolTable.isDeclared(n))
+                    throw new UndefinedVarException(n);
 
-                    Assignment assignment = symbolTable.get(n);
+                Assignment assignment = symbolTable.get(n);
 
-                    System.out.println(n.getValue());
+                System.out.println(n.getValue());
 
-                    int quantity = doOperation(n.left());
+                int quantity = doOperation(n.left());
 
-                    if (quantity<= 0)
-                        throw new IllegalDefinitionException(
-                                assignment,
-                                n.getPosition(),
-                                "quantity of ingredients must be greater that zero");
+                if (quantity <= 0)
+                    throw new IllegalDefinitionException(
+                        assignment,
+                        n.getPosition(),
+                        "quantity of ingredients must be greater that zero");
 
-                    if (assignment instanceof Ingredient ingredient)
-                        return Map.entry(ingredient, quantity);
+                if (assignment instanceof Ingredient ingredient)
+                    return Map.entry(ingredient, quantity);
 
-                    throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
-                })
-                .peek(e -> {
+                throw new IllegalDefinitionException(n, Expressions.INGREDIENT_VAR);
+            })
+            .peek(e -> {
 
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+            })
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     private int doOperation(@NotNull ASTNode operationNode) {

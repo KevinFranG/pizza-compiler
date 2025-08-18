@@ -1,20 +1,20 @@
 // basic ingredients
-define ingredient PEPPERONI ('pepperoni.png') resize 100;
-define ingredient HAM ('ham.png') resize 80;
-define ingredient PINEAPPLE ('pineapple.png') resize 80;
-define ingredient GROUND_MEAT ('ground_meat.png') resize 50;
-define ingredient GREEN_PEPPER ('green_pepper.png') resize 120;
-define ingredient JALAPENO ('jalapeño.png') resize 120;
-define ingredient ONION ('onion.png') resize 150;
-define ingredient MUSHROOM ('mushroom.png') resize 100;
-define ingredient OLIVE ('olive.png') resize 40;
-define ingredient SAUSAGE ('sausage.png') resize 50;
-define ingredient SALAMI ('salami.png') resize 150;
-define ingredient BACON ('bacon.png') resize 70;
-define ingredient CHICKEN ('chicken.png') resize 80;
-define ingredient SHRIMP ('shrimp.png') resize 120;
-define ingredient SHARK ('shark.png') resize 180;
-define ingredient CHEETOS ('cheetos.png') resize 100;
+define ingredient PEPPERONI ('ingredients/pepperoni.png') resize 100;
+define ingredient HAM ('ingredients/ham.png') resize 80;
+define ingredient PINEAPPLE ('ingredients/pineapple.png') resize 80;
+define ingredient GROUND_MEAT ('ingredients/ground_meat.png') resize 50;
+define ingredient GREEN_PEPPER ('ingredients/green_pepper.png') resize 120;
+define ingredient JALAPENO ('ingredients/jalapeño.png') resize 120;
+define ingredient ONION ('ingredients/onion.png') resize 150;
+define ingredient MUSHROOM ('ingredients/mushroom.png') resize 100;
+define ingredient OLIVE ('ingredients/olive.png') resize 40;
+define ingredient SAUSAGE ('ingredients/sausage.png') resize 50;
+define ingredient SALAMI ('ingredients/salami.png') resize 150;
+define ingredient BACON ('ingredients/bacon.png') resize 70;
+define ingredient CHICKEN ('ingredients/chicken.png') resize 80;
+define ingredient SHRIMP ('ingredients/shrimp.png') resize 120;
+define ingredient SHARK ('ingredients/shark.png') resize 180;
+define ingredient CHEETOS ('ingredients/cheetos.png') resize 100;
 
 // basic specialties
 define specialty MEXICANA {
