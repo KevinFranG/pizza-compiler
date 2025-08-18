@@ -1,0 +1,13 @@
+include 'basicmenu';
+
+make big pizza add pepperoni(40) save as 'examples/pepperoni';
+
+make big pizza add pepperoni(25) and ham(15) and green_pepper(10) save as 'examples/personalizada';
+
+make big pizza of hawaiana save as 'examples/hawaiana';
+
+make big pizza of mexicana save as 'examples/mexicana';
+
+make big pizza of extravaganza save as 'examples/extravaganza';
+
+make big pizza of mar_y_tierra save as 'examples/mar y tierra';
