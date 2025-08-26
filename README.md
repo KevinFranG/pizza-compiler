@@ -203,5 +203,5 @@ Estos ejemplos se encuentran en la carpeta examples del proyecto, así como algu
 ## 🔗 Contacto
 
 - GitHub: [kevin-francisco](https://github.com/KevinFranG)
-  - LinkedIn: [kevin-a-francisco](https://www.linkedin.com/in/kevin-a-francico)
+  - LinkedIn: [kevinfrang](https://www.linkedin.com/in/kevinfrang)
 - Email: kevinfrancisco.dev18@gmail.com
